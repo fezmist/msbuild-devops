@@ -1,0 +1,2 @@
+http://www.dotnetcatch.com/2016/06/23/deploy-an-asp-net-website-not-web-application-with-msdeploy/
+https://docs.microsoft.com/en-us/aspnet/web-forms/overview/deployment/web-deployment-in-the-enterprise/deploying-web-packages

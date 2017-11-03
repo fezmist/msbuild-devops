@@ -1,19 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="14.0" DefaultTargets="Start">
     <PropertyGroup>
-      <MSBuildStaticVersion>14.0</MSBuildStaticVersion>  
-      <VSToolsPath>C:\Data\dev\msbuild\msbuild-web-test\_build\lib\VSTools\v14.0</VSToolsPath>
+      <!--<MSBuildStaticVersion>14.0</MSBuildStaticVersion>-->  
+      <!--<VSToolsPath>C:\Data\dev\msbuild\msbuild-web-test\_build\lib\VSTools\v14.0</VSToolsPath>-->
       <DeployScriptDir>$([System.IO.Path]::GetFullPath('.'))</DeployScriptDir>
       <SiteName>Default Web Site</SiteName>
       <AppName>msbuild-web-test</AppName>
-      <!--<WebsiteAppName>msbuild-web-test</WebsiteAppName>-->
       <AppPoolName>msbuild-web-test</AppPoolName>
       <DeployDir>$([System.IO.Path]::GetFullPath('..'))</DeployDir>
   </PropertyGroup>
   
   <Import Project="$(DeployScriptDir)\lib\MSBuildCommunityTasks\MSBuild.Community.Tasks.Targets" />
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildStaticVersion)\Microsoft.Common.props" />
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildStaticVersion)\bin\Microsoft.CSharp.targets" />
+  <!--<Import Project="$(MSBuildExtensionsPath)\$(MSBuildStaticVersion)\Microsoft.Common.props" />-->
+  <!--<Import Project="$(MSBuildExtensionsPath)\$(MSBuildStaticVersion)\bin\Microsoft.CSharp.targets" />-->
   <UsingTask AssemblyFile="$(DeployScriptDir)\lib\MSBuildExtensionPack\MSBuild.ExtensionPack.Iis7.dll" TaskName="MSBuild.ExtensionPack.Web.Iis7Website"/>
   <UsingTask AssemblyFile="$(DeployScriptDir)\lib\MSBuildExtensionPack\MSBuild.ExtensionPack.Iis7.dll" TaskName="MSBuild.ExtensionPack.Web.Iis7Application"/>
   <UsingTask AssemblyFile="$(DeployScriptDir)\lib\MSBuildExtensionPack\MSBuild.ExtensionPack.Iis7.dll" TaskName="MSBuild.ExtensionPack.Web.Iis7AppPool"/>

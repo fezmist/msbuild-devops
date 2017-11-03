@@ -1,19 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="14.0" DefaultTargets="Start">
     <PropertyGroup>
-      <MSBuildStaticVersion>14.0</MSBuildStaticVersion>  
-      <VSToolsPath>C:\Data\dev\msbuild\msbuild-web-test\_build\lib\VSTools\v14.0</VSToolsPath>
+      <!--<MSBuildStaticVersion>14.0</MSBuildStaticVersion>-->  
+      <!--<VSToolsPath>C:\Data\dev\msbuild\msbuild-web-test\_build\lib\VSTools\v14.0</VSToolsPath>-->
       <DeployScriptDir>$([System.IO.Path]::GetFullPath('.'))</DeployScriptDir>
       <SiteName>Default Web Site</SiteName>
       <AppName>msbuild-web-test</AppName>
-      <!--<WebsiteAppName>msbuild-web-test</WebsiteAppName>-->
       <AppPoolName>msbuild-web-test</AppPoolName>
       <DeployDir>$([System.IO.Path]::GetFullPath('..'))</DeployDir>
   </PropertyGroup>
   
   <Import Project="$(DeployScriptDir)\lib\MSBuildCommunityTasks\MSBuild.Community.Tasks.Targets" />
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildStaticVersion)\Microsoft.Common.props" />
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildStaticVersion)\bin\Microsoft.CSharp.targets" />
+  <!--<Import Project="$(MSBuildExtensionsPath)\$(MSBuildStaticVersion)\Microsoft.Common.props" />-->
+  <!--<Import Project="$(MSBuildExtensionsPath)\$(MSBuildStaticVersion)\bin\Microsoft.CSharp.targets" />-->
   <UsingTask AssemblyFile="$(DeployScriptDir)\lib\MSBuildExtensionPack\MSBuild.ExtensionPack.Iis7.dll" TaskName="MSBuild.ExtensionPack.Web.Iis7Website"/>
   <UsingTask AssemblyFile="$(DeployScriptDir)\lib\MSBuildExtensionPack\MSBuild.ExtensionPack.Iis7.dll" TaskName="MSBuild.ExtensionPack.Web.Iis7Application"/>
   <UsingTask AssemblyFile="$(DeployScriptDir)\lib\MSBuildExtensionPack\MSBuild.ExtensionPack.Iis7.dll" TaskName="MSBuild.ExtensionPack.Web.Iis7AppPool"/>
@@ -69,11 +68,25 @@
 
     <!--remove app pool if exists-->
     <CallTarget Targets="RemoveAppPool" Condition="$(AppPoolExists)=='true'"/>
-    
+
+    <!--check if app pool exists again-->
+    <MSBuild.ExtensionPack.Web.Iis7AppPool TaskAction="CheckExists" Name="$(AppPoolName)" ContinueOnError="true">
+      <Output TaskParameter="Exists" PropertyName="AppPoolExists"/>
+    </MSBuild.ExtensionPack.Web.Iis7AppPool>
+    <Message Text="AppPool $(AppPoolName) exists" Condition="$(AppPoolExists)=='true'"/>
+    <Message Text="AppPool $(AppPoolName) does not exist" Condition="$(AppPoolExists)=='false'"/>
+
     <!-- create app pool-->
     <CallTarget Targets="CreateAppPool" Condition="$(AppPoolExists)=='false'"/>
-    
-    
+
+    <!--check if website application exists again-->
+    <MSBuild.ExtensionPack.Web.Iis7Application TaskAction="CheckExists" Website="$(SiteName)" Applications="@(Application)" ContinueOnError="true">
+      <Output TaskParameter="Exists" PropertyName="WebsiteAppExists"/>
+    </MSBuild.ExtensionPack.Web.Iis7Application>
+    <Message Text="Website application $(SiteName)/$(AppName) already exists" Condition="$(WebsiteAppExists)=='true'"/>
+    <Message Text="Website application $(SiteName)/$(AppName) does not exist" Condition="$(WebsiteAppExists)=='false'"/>
+
+
     <!--create website application-->
     <CallTarget Targets="CreateWebsiteApplication" Condition="$(WebsiteAppExists)=='false'"/>
 
@@ -104,7 +117,7 @@
 
   <Target Name="CreateAppPool" DependsOnTargets="RemoveAppPool">
     <!-- Create an AppPool -->
-    <MSBuild.ExtensionPack.Web.Iis7AppPool TaskAction="Create" Name="$(AppPoolName)" IdentityType="ApplicationPoolIdentity" RecycleRequests="200" RecycleInterval="1987" Force="true" MaxProcesses="5"/>
+    <MSBuild.ExtensionPack.Web.Iis7AppPool TaskAction="Create" Name="$(AppPoolName)" IdentityType="ApplicationPoolIdentity" PipelineMode="Integrated" Enable32BitAppOnWin64="true" RecycleRequests="200" RecycleInterval="1987" Force="true" MaxProcesses="5"/>
 
   </Target>
 

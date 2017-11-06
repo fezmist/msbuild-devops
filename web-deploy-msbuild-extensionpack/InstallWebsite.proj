@@ -18,6 +18,8 @@
   <UsingTask AssemblyFile="$(DeployScriptDir)\lib\MSBuildExtensionPack\MSBuild.ExtensionPack.Iis7.dll" TaskName="MSBuild.ExtensionPack.Web.Iis7AppPool"/>
   <UsingTask AssemblyFile="$(DeployScriptDir)\lib\MSBuildExtensionPack\MSBuild.ExtensionPack.Iis7.dll" TaskName="MSBuild.ExtensionPack.Web.Iis7Binding"/>
   <UsingTask AssemblyFile="$(DeployScriptDir)\lib\MSBuildExtensionPack\MSBuild.ExtensionPack.Iis7.dll" TaskName="MSBuild.ExtensionPack.Web.Iis7Website"/>
+  <!--folder permissions-->
+  <UsingTask AssemblyFile="$(DeployScriptDir)\lib\MSBuildExtensionPack\MSBuild.ExtensionPack.dll" TaskName="MSBuild.ExtensionPack.FileSystem.Folder"/>
 
   <ItemGroup>
     <Application Include="/$(AppName)">
@@ -30,6 +32,8 @@
 
   <Target Name="Start">
     <CallTarget Targets="PrintPaths"/>
+    <CallTarget Targets="AddFolderPermissions"/>
+    <!--<CallTarget Targets="RemoveFolderPermissions"/>-->
     <CallTarget Targets="Install"/>
     <!--<CallTarget Targets="CheckAppPoolExists"/>-->
     <!--<CallTarget Targets="CheckWebsiteApplicationExists"/>-->
@@ -115,7 +119,7 @@
 
   <Target Name="CreateAppPool" DependsOnTargets="RemoveAppPool">
     <!-- Create an AppPool -->
-    <MSBuild.ExtensionPack.Web.Iis7AppPool TaskAction="Create" Name="$(AppPoolName)" IdentityType="ApplicationPoolIdentity" PipelineMode="Integrated" Enable32BitAppOnWin64="true" RecycleRequests="200" RecycleInterval="1987" Force="true" MaxProcesses="5"/>
+    <MSBuild.ExtensionPack.Web.Iis7AppPool TaskAction="Create" Name="$(AppPoolName)" IdentityType="ApplicationPoolIdentity" PipelineMode="Integrated" ManagedRuntimeVersion="v4.0" Enable32BitAppOnWin64="true" RecycleRequests="200" RecycleInterval="1987" Force="true" MaxProcesses="5"/>
 
   </Target>
 
@@ -139,6 +143,24 @@
                                            Website="$(SiteName)"
                                            Applications="@(Application)"
                                            ContinueOnError="false"/>
+  </Target>
+
+  <Target Name="AddFolderPermissions">
+    <ItemGroup>
+      <Users Include="IIS_IUSRS">
+        <Permission>FullControl</Permission>
+      </Users>
+    </ItemGroup>
+    <MSBuild.ExtensionPack.FileSystem.Folder TaskAction="AddSecurity" Path="$(DeployDir)" Users="@(Users)"/>
+  </Target>
+
+  <Target Name="RemoveFolderPermissions">
+    <ItemGroup>
+      <Users Include="IIS_IUSRS">
+        <Permission>FullControl</Permission>
+      </Users>
+    </ItemGroup>
+    <MSBuild.ExtensionPack.FileSystem.Folder TaskAction="RemoveSecurity" Path="$(DeployDir)" Users="@(Users)"/>
   </Target>
 
 

@@ -8,6 +8,7 @@
     <AppName>msbuild-web-test</AppName>
     <AppPoolName>msbuild-web-test</AppPoolName>
     <DeployDir>$([System.IO.Path]::GetFullPath('..'))</DeployDir>
+    <!--<GacLocation>C:\Windows\assembly</GacLocation>-->
   </PropertyGroup>
 
   <Import Project="$(DeployScriptDir)\lib\MSBuildCommunityTasks\MSBuild.Community.Tasks.Targets" />
@@ -20,6 +21,7 @@
   <UsingTask AssemblyFile="$(DeployScriptDir)\lib\MSBuildExtensionPack\MSBuild.ExtensionPack.Iis7.dll" TaskName="MSBuild.ExtensionPack.Web.Iis7Website"/>
   <!--folder permissions-->
   <UsingTask AssemblyFile="$(DeployScriptDir)\lib\MSBuildExtensionPack\MSBuild.ExtensionPack.dll" TaskName="MSBuild.ExtensionPack.FileSystem.Folder"/>
+  <UsingTask AssemblyFile="$(DeployScriptDir)\lib\MSBuildExtensionPack\MSBuild.ExtensionPack.dll" TaskName="MSBuild.ExtensionPack.Framework.Gac"/>
 
   <ItemGroup>
     <Application Include="/$(AppName)">
@@ -32,9 +34,12 @@
 
   <Target Name="Start">
     <CallTarget Targets="PrintPaths"/>
-    <CallTarget Targets="AddFolderPermissions"/>
+    <!--<CallTarget Targets="DisplayWindowsOSVersion" />-->
+    <!--<CallTarget Targets="InstallAssembliesToGAC"/>-->
+    <!--<CallTarget Targets="UninstallAssembliesFromGAC"/>-->
+    <!--<CallTarget Targets="AddFolderPermissions"/>-->
     <!--<CallTarget Targets="RemoveFolderPermissions"/>-->
-    <CallTarget Targets="Install"/>
+    <!--<CallTarget Targets="Install"/>-->
     <!--<CallTarget Targets="CheckAppPoolExists"/>-->
     <!--<CallTarget Targets="CheckWebsiteApplicationExists"/>-->
     <!--<CallTarget Targets="RemoveWebsiteApplication"/>-->
@@ -46,6 +51,7 @@
     <Message Text="AppName: $(AppName)"/>
     <Message Text="AppPoolName: $(AppPoolName)"/>
     <Message Text="@(Application)"/>
+    <Message Text="@(GacAssemblies)"/>
   </Target>
 
 
@@ -163,5 +169,34 @@
     <MSBuild.ExtensionPack.FileSystem.Folder TaskAction="RemoveSecurity" Path="$(DeployDir)" Users="@(Users)"/>
   </Target>
 
+  <Target Name="InstallAssembliesToGAC">
+    <!--<MSBuild.ExtensionPack.Framework.Gac TaskAction="AddAssembly" AssemblyPath="$(DeployScriptDir)\lib\MSBuildCommunityTasks\MSBuild.Community.Tasks.dll)" />-->
+    <!--<Exec Command="&quot;$(GacUtilPath)\gacutil.exe&quot; -i &quot;$(DeployDir)\lib\MSBuildCommunityTasks\MSBuild.Community.Tasks.dll&quot;">
+    </Exec>-->
+  <Exec Command="&quot;$(GacUtilPath)&quot; -i &quot;$(DeployScriptDir)\lib\MSBuildCommunityTasks\MSBuild.Community.Tasks.dll&quot;">
+    </Exec>
+  <!--<Exec Command="echo gacutil.exe -i &quot;$(DeployDir)\lib\MSBuildCommunityTasks\MSBuild.Community.Tasks.dll&quot;">
+  </Exec>-->
+  </Target>
+
+  <Target Name="UninstallAssembliesFromGAC">
+    <!--<MSBuild.ExtensionPack.Framework.Gac TaskAction="RemoveAssembly" AssemblyPath="MSBuild.Community.Tasks" />-->
+      <Exec Command="&quot;$(GacUtilPath)&quot; -u MSBuild.Community.Tasks">
+    </Exec>
+  </Target>
+
+  <PropertyGroup>
+    <!--<OsVersion>$(registry:HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion@CurrentVersion).$(registry:HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion@CurrentBuildNumber)</OsVersion>-->
+    <OsVersion>$(registry:HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion@ProductName)</OsVersion>
+    
+    <GacUtilPath Condition="$(OSVersion.Contains('Windows 7'))">C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\Bin\gacutil</GacUtilPath>
+    <GacUtilPath Condition="$(OSVersion.Contains('Windows 2008'))">C:\Program Files (x86)\Microsoft SDKs\Windows\v6.0A\Bin\gacutil</GacUtilPath>
+    <GacUtilPath Condition="$(OSVersion.Contains('Windows 2012'))">C:\Program Files (x86)\Microsoft SDKs\Windows\v6.0A\Bin\gacutil</GacUtilPath>
+    <GacUtilPath Condition="$(OSVersion.Contains('Windows 10'))">C:\Program Files (x86)\Microsoft SDKs\Windows\v8.1A\Bin\NETFX 4.5.1 Tools\gacutil</GacUtilPath>
+  </PropertyGroup>
+  <Target Name="DisplayWindowsOSVersion">
+    <Message Text="Version: $(OsVersion)" />
+    <Message Text="GacUtilPath: $(GacUtilPath)"/>
+  </Target>
 
 </Project>
